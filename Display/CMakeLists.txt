@@ -1,0 +1,91 @@
+cmake_minimum_required(VERSION 3.5)
+
+include(${PICO_SDK_PATH}/lib/tinyusb/hw/bsp/family_support.cmake)
+
+#include(pico_sdk_import.cmake)
+
+#set(CMAKE_C_STANDARD 11)
+#set(CMAKE_CXX_STANDARD 17)
+
+#set(FAMILY rp2040)
+#set(BOARD adafruit_feather_rp2040)
+# Default path to the SDK
+#set(PICO_BOARD adafruit_feather_rp2040)
+
+# Pull in Pico SDK (must be before project)
+
+
+#pico_sdk_init()
+
+
+family_get_project_name(PROJECT ${CMAKE_CURRENT_LIST_DIR})
+project(${PROJECT} C CXX ASM)
+
+
+family_initialize_project(${PROJECT} ${CMAKE_CURRENT_LIST_DIR})
+
+add_executable(${PROJECT})
+target_sources(${PROJECT} PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/main.c
+  )
+
+pico_set_program_name(${PROJECT} "Pico MIdi Gate")
+pico_set_program_version(${PROJECT} "0.1")
+
+# Enable usb output, disable uart output
+pico_enable_stdio_usb(${PROJECT} 1)
+pico_enable_stdio_uart(${PROJECT} 0)
+
+# Add any user requested libraries
+#target_link_libraries(PolyMidiGate2
+#        pico_stdlib
+#       hardware_spi
+#        hardware_dma
+#        hagl
+#        hagl_hal
+#        )
+add_subdirectory(external/hagl)
+add_subdirectory(external/hagl_hal)
+
+target_include_directories(${PROJECT} PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/hagl/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/hagl_hal/include
+        )        
+
+target_link_libraries(${PROJECT} PUBLIC
+        pico_stdlib
+        hardware_spi
+        hardware_dma
+        hagl
+        hagl_hal
+)
+
+family_configure_device_example(${PROJECT})        
+pico_add_extra_outputs(${PROJECT})
+
+
+
+target_compile_definitions(${PROJECT} PRIVATE
+  #HAGL_HAL_USE_SINGLE_BUFFER
+  #HAGL_HAL_USE_DOUBLE_BUFFER
+  HAGL_HAL_USE_TRIPLE_BUFFER
+  HAGL_HAL_USE_DMA
+  HAGL_HAL_DEBUG
+  MIPI_DISPLAY_SPI_CLOCK_SPEED_HZ=64000000
+  MIPI_DISPLAY_PIN_CS=10
+  MIPI_DISPLAY_PIN_DC=8 # A0
+  MIPI_DISPLAY_PIN_RST=9
+  MIPI_DISPLAY_PIN_BL=-1
+  MIPI_DISPLAY_PIN_CLK=2
+  MIPI_DISPLAY_PIN_MOSI=3 # SDA
+  MIPI_DISPLAY_PIN_MISO=-1
+  MIPI_DISPLAY_PIXEL_FORMAT=MIPI_DCS_PIXEL_FORMAT_16BIT
+  MIPI_DISPLAY_ADDRESS_MODE=MIPI_DCS_ADDRESS_MODE_BGR|MIPI_DCS_ADDRESS_MODE_MIRROR_Y|MIPI_DCS_ADDRESS_MODE_MIRROR_X
+  MIPI_DISPLAY_WIDTH=128
+  MIPI_DISPLAY_HEIGHT=160
+  MIPI_DISPLAY_OFFSET_X=0
+  MIPI_DISPLAY_OFFSET_Y=0
+  MIPI_DISPLAY_INVERT=0
+)
+
