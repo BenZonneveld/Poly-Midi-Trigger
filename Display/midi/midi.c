@@ -18,10 +18,6 @@ void led_task(void);
 /*------------- MAIN -------------*/
 int init_midi(void)
 {
-  board_init();
-
-  tusb_init();
-
     // Initialise UART 0
   uart_init(uart0, 31250);
   // Set the GPIO pin mux to the UART - 0 is TX, 1 is RX

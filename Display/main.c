@@ -36,7 +36,7 @@ SPDX-License-Identifier: MIT-0
 #include "hardware/gpio.h"
 
 #include <sys/time.h>
-//#include <midi.h>
+#include <midi.h>
 #include <hagl_hal.h>
 #include <hagl.h>
 #include <font6x9.h>
@@ -92,6 +92,7 @@ int main()
 
     tusb_init();
 
+    init_midi();
     /* Sleep so that we have time top open serial console. */
     sleep_ms(5000);
 
@@ -108,6 +109,7 @@ int main()
             show_fps();
         }
 
+        do_midi();
         /* Flush back buffer contents to display. NOP if single buffering. */
         bytes = hagl_flush();
 
