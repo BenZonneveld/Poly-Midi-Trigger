@@ -31,7 +31,7 @@ int init_midi(void)
   return 0;
 }
 
-void midi_Tasks(void)
+void do_midi(void)
 {
     tud_task();   // tinyusb device task
     led_task();

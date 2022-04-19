@@ -30,8 +30,13 @@ SPDX-License-Identifier: MIT-0
 #include <wchar.h>
 #include <pico/stdlib.h>
 
+#include "bsp/board.h"
+#include "tusb.h"
+#include "hardware/uart.h"
+#include "hardware/gpio.h"
+
 #include <sys/time.h>
-//#include <../midi/midi.h>
+//#include <midi.h>
 #include <hagl_hal.h>
 #include <hagl.h>
 #include <font6x9.h>
@@ -83,6 +88,9 @@ int main()
 
     set_sys_clock_khz(133000, true);
     stdio_init_all();
+    board_init();
+
+    tusb_init();
 
     /* Sleep so that we have time top open serial console. */
     sleep_ms(5000);

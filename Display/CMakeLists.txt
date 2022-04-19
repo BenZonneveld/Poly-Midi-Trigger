@@ -27,13 +27,14 @@ family_initialize_project(${PROJECT} ${CMAKE_CURRENT_LIST_DIR})
 add_executable(${PROJECT})
 target_sources(${PROJECT} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/main.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/usb_descriptors.c
   )
 
 pico_set_program_name(${PROJECT} "Pico MIdi Gate")
 pico_set_program_version(${PROJECT} "0.1")
 
 # Enable usb output, disable uart output
-pico_enable_stdio_usb(${PROJECT} 1)
+#pico_enable_stdio_usb(${PROJECT} 1)
 pico_enable_stdio_uart(${PROJECT} 0)
 
 # Add any user requested libraries
@@ -46,11 +47,13 @@ pico_enable_stdio_uart(${PROJECT} 0)
 #        )
 add_subdirectory(external/hagl)
 add_subdirectory(external/hagl_hal)
+add_subdirectory(midi)
 
 target_include_directories(${PROJECT} PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/external/hagl/include
         ${CMAKE_CURRENT_SOURCE_DIR}/external/hagl_hal/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/midi
         )        
 
 target_link_libraries(${PROJECT} PUBLIC
@@ -59,12 +62,11 @@ target_link_libraries(${PROJECT} PUBLIC
         hardware_dma
         hagl
         hagl_hal
+        picomidi
 )
 
 family_configure_device_example(${PROJECT})        
 pico_add_extra_outputs(${PROJECT})
-
-
 
 target_compile_definitions(${PROJECT} PRIVATE
   #HAGL_HAL_USE_SINGLE_BUFFER
