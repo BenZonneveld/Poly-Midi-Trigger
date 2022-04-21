@@ -1,7 +1,10 @@
 #ifndef PICO_MIDI
 #define PICO_MIDI
+
+#define FLAG_VALUE 123
+
 int init_midi(void);
-void do_midi(void);
+void midi_core(void);
 void tud_mount_cb(void);
 void tud_umount_cb(void);
 void tud_suspend_cb(bool remote_wakeup_en);

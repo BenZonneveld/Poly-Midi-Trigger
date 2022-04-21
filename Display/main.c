@@ -29,23 +29,19 @@ SPDX-License-Identifier: MIT-0
 #include <stdio.h>
 #include <wchar.h>
 #include <pico/stdlib.h>
+#include "pico/multicore.h"
 
-#include "bsp/board.h"
-#include "tusb.h"
-#include "hardware/uart.h"
-#include "hardware/gpio.h"
+#include <midi.h>
 
 #include <sys/time.h>
-#include <midi.h>
+
 #include <hagl_hal.h>
 #include <hagl.h>
 #include <font6x9.h>
 #include <fps.h>
 #include <aps.h>
 
-static uint8_t effect = 0;
 volatile bool fps_flag = false;
-volatile bool switch_flag = true;
 static float effect_fps;
 static float display_bps;
 
@@ -81,20 +77,9 @@ void static inline show_fps() {
     hagl_set_clip_window(0, 20, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 21);
 }
 
-int main()
-{
+void screen(void){
     size_t bytes = 0;
     struct repeating_timer show_timer;
-
-    set_sys_clock_khz(133000, true);
-    stdio_init_all();
-    board_init();
-
-    tusb_init();
-
-    init_midi();
-    /* Sleep so that we have time top open serial console. */
-    sleep_ms(5000);
 
     hagl_init();
     hagl_clear_screen();
@@ -109,9 +94,8 @@ int main()
             show_fps();
         }
 
-        do_midi();
         /* Flush back buffer contents to display. NOP if single buffering. */
-        bytes = hagl_flush();
+  //      bytes = hagl_flush();
 
         display_bps = aps(bytes);
         effect_fps = fps();
@@ -119,6 +103,28 @@ int main()
         /* Cap the demos to 60 fps. This is mostly to accommodate to smaller */
         /* screens where plasma will run too fast. */
     };
+
+}
+
+
+int main()
+{
+    //   set_sys_clock_khz(133000, true); /// Seems to conflict with tinyusb ?!
+    stdio_init_all();
+
+    multicore_launch_core1(midi_core);
+
+    // Wait for it to start up
+
+//    uint32_t g = multicore_fifo_pop_blocking();
+
+    //   init_midi();
+       /* Sleep so that we have time top open serial console. */
+    //   sleep_ms(5000);
+    screen();
+
+    while (1)
+    { }
 
     return 0;
 }

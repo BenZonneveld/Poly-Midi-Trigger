@@ -34,7 +34,7 @@ pico_set_program_name(${PROJECT} "Pico MIdi Gate")
 pico_set_program_version(${PROJECT} "0.1")
 
 # Enable usb output, disable uart output
-#pico_enable_stdio_usb(${PROJECT} 1)
+pico_enable_stdio_usb(${PROJECT} 1)
 pico_enable_stdio_uart(${PROJECT} 0)
 
 # Add any user requested libraries
@@ -60,6 +60,7 @@ target_link_libraries(${PROJECT} PUBLIC
         pico_stdlib
         hardware_spi
         hardware_dma
+        pico_multicore
         hagl
         hagl_hal
         picomidi
@@ -74,7 +75,7 @@ target_compile_definitions(${PROJECT} PRIVATE
   HAGL_HAL_USE_TRIPLE_BUFFER
   HAGL_HAL_USE_DMA
   HAGL_HAL_DEBUG
-  MIPI_DISPLAY_SPI_CLOCK_SPEED_HZ=64000000
+  MIPI_DISPLAY_SPI_CLOCK_SPEED_HZ=40000000
   MIPI_DISPLAY_PIN_CS=10
   MIPI_DISPLAY_PIN_DC=8 # A0
   MIPI_DISPLAY_PIN_RST=9
@@ -91,3 +92,7 @@ target_compile_definitions(${PROJECT} PRIVATE
   MIPI_DISPLAY_INVERT=0
 )
 
+#add_custom_command(TARGET ${PROJECT} POST_BUILD
+#    COMMAND	copy ${PROJECT}.uf2 readme.1st
+#    VERBATIM
+#)

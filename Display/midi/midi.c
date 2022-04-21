@@ -2,6 +2,8 @@
 #include "tusb.h"
 #include "hardware/uart.h"
 #include "hardware/gpio.h"
+#include "midi.h"
+#include "pico/multicore.h"
 
 //--------------------------------------------------------------------+
 // MACRO CONSTANT TYPEDEF PROTYPES
@@ -12,13 +14,13 @@
 static bool led_usb_state = false;
 static bool led_uart_state = false;
 
-void midi_task(void);
-void led_task(void);
+//void midi_task(void);
+//void led_task(void);
 
 /*------------- MAIN -------------*/
 int init_midi(void)
 {
-    // Initialise UART 0
+  // Initialise UART 0
   uart_init(uart0, 31250);
   // Set the GPIO pin mux to the UART - 0 is TX, 1 is RX
   gpio_set_function(0, GPIO_FUNC_UART);
@@ -27,11 +29,22 @@ int init_midi(void)
   return 0;
 }
 
-void do_midi(void)
+void midi_core(void)
 {
-    tud_task();   // tinyusb device task
-    led_task();
-    midi_task();
+//    multicore_fifo_push_blocking(FLAG_VALUE);
+//    uint32_t g = multicore_fifo_pop_blocking();
+    board_init();
+
+    tusb_init();
+
+    init_midi();
+
+    while (true)
+    {
+        tud_task();   // tinyusb device task
+        led_task();
+        midi_task();
+    }
 }
 
 //--------------------------------------------------------------------+
