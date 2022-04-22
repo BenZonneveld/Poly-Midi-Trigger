@@ -1,10 +1,10 @@
-#include "bsp/board.h"
-#include "tusb.h"
-#include "hardware/uart.h"
-#include "hardware/gpio.h"
+#include <bsp/board.h>
+#include <tusb.h>
+#include <hardware/uart.h>
+#include <hardware/gpio.h>
 #include "midi.h"
-#include "pico/multicore.h"
-
+#include <pico/multicore.h>
+#include "struct.h"
 //--------------------------------------------------------------------+
 // MACRO CONSTANT TYPEDEF PROTYPES
 //--------------------------------------------------------------------+
@@ -14,9 +14,16 @@
 static bool led_usb_state = false;
 static bool led_uart_state = false;
 
+struct s_midi_data midi_data;
+
+//mutex_t DataMutex;
 //void midi_task(void);
 //void led_task(void);
 
+struct s_midi_data get_midi_data()
+{
+    return midi_data;
+}
 /*------------- MAIN -------------*/
 int init_midi(void)
 {
@@ -29,23 +36,6 @@ int init_midi(void)
   return 0;
 }
 
-void midi_core(void)
-{
-//    multicore_fifo_push_blocking(FLAG_VALUE);
-//    uint32_t g = multicore_fifo_pop_blocking();
-    board_init();
-
-    tusb_init();
-
-    init_midi();
-
-    while (true)
-    {
-        tud_task();   // tinyusb device task
-        led_task();
-        midi_task();
-    }
-}
 
 //--------------------------------------------------------------------+
 // Device callbacks
@@ -124,6 +114,12 @@ void midi_task(void)
       size_t length = cin_to_length[cid];
       if (length)
       {
+        mutex_enter_blocking(DataMutex);
+        midi_data.cn_cin = packet[0];
+        midi_data.command = packet[1];
+        midi_data.data1 = packet[2];
+        midi_data.data2 = packet[3];
+        mutex_exit(DataMutex);
         uart_write_blocking(uart0, packet+1, length);
       }
     }
@@ -183,4 +179,23 @@ void led_task(void)
   {
     board_led_write(false);
   }
+}
+
+// CORE Task
+void midi_core(void)
+{
+    //    multicore_fifo_push_blocking(FLAG_VALUE);
+    //    uint32_t g = multicore_fifo_pop_blocking();
+    board_init();
+
+    tusb_init();
+
+    init_midi();
+
+    while (true)
+    {
+        tud_task();   // tinyusb device task
+        led_task();
+        midi_task();
+    }
 }

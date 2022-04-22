@@ -24,11 +24,25 @@ project(${PROJECT} C CXX ASM)
 
 family_initialize_project(${PROJECT} ${CMAKE_CURRENT_LIST_DIR})
 
+add_subdirectory(external/hagl)
+add_subdirectory(external/hagl_hal)
+
 add_executable(${PROJECT})
+
+target_include_directories(${PROJECT} PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/hagl/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/hagl_hal/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/midi
+)        
+
 target_sources(${PROJECT} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/main.c
   ${CMAKE_CURRENT_SOURCE_DIR}/usb_descriptors.c
-  )
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi/midi.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi/list.c 
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi/handlers.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi/Arp.c)
 
 pico_set_program_name(${PROJECT} "Pico MIdi Gate")
 pico_set_program_version(${PROJECT} "0.1")
@@ -45,25 +59,16 @@ pico_enable_stdio_uart(${PROJECT} 0)
 #        hagl
 #        hagl_hal
 #        )
-add_subdirectory(external/hagl)
-add_subdirectory(external/hagl_hal)
-add_subdirectory(midi)
-
-target_include_directories(${PROJECT} PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/external/hagl/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/external/hagl_hal/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/midi
-        )        
 
 target_link_libraries(${PROJECT} PUBLIC
         pico_stdlib
+ #       pico_base
+        pico_bootsel_via_double_reset
         hardware_spi
         hardware_dma
         pico_multicore
         hagl
         hagl_hal
-        picomidi
 )
 
 family_configure_device_example(${PROJECT})        
@@ -75,7 +80,7 @@ target_compile_definitions(${PROJECT} PRIVATE
   HAGL_HAL_USE_TRIPLE_BUFFER
   HAGL_HAL_USE_DMA
   HAGL_HAL_DEBUG
-  MIPI_DISPLAY_SPI_CLOCK_SPEED_HZ=40000000
+  MIPI_DISPLAY_SPI_CLOCK_SPEED_HZ=25000000
   MIPI_DISPLAY_PIN_CS=10
   MIPI_DISPLAY_PIN_DC=8 # A0
   MIPI_DISPLAY_PIN_RST=9
