@@ -2,19 +2,26 @@
 #include <tusb.h>
 #include <hardware/uart.h>
 #include <hardware/gpio.h>
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include "queue.h"
+#include "task.h"
+//#include "rtos_hooks.h"
+
+#include "hardware/rtc.h"
+#include <pico/util/datetime.h>
+//#include <sys/time.h>
+
+#include "main.h"
+#include "cdc.h"
+#include "led_task.h"
 #include "midi.h"
-#include <pico/multicore.h>
 #include "struct.h"
 //--------------------------------------------------------------------+
 // MACRO CONSTANT TYPEDEF PROTYPES
 //--------------------------------------------------------------------+
 
-//#define IGNORE_MIDI_CC
-
-static bool led_usb_state = false;
-static bool led_uart_state = false;
-
-struct s_midi_data midi_data;
+static struct s_midi_data midi_data;
 
 //mutex_t DataMutex;
 //void midi_task(void);
@@ -38,35 +45,6 @@ int init_midi(void)
 
 
 //--------------------------------------------------------------------+
-// Device callbacks
-//--------------------------------------------------------------------+
-
-// Invoked when device is mounted
-void tud_mount_cb(void)
-{
-}
-
-// Invoked when device is unmounted
-void tud_umount_cb(void)
-{
-  led_usb_state = false;
-  led_uart_state = false;
-}
-
-// Invoked when usb bus is suspended
-// remote_wakeup_en : if host allow us to perform remote wakeup
-// Within 7ms, device must draw an average of current less than 2.5 mA from bus
-void tud_suspend_cb(bool remote_wakeup_en)
-{
-  (void) remote_wakeup_en;
-}
-
-// Invoked when usb bus is resumed
-void tud_resume_cb(void)
-{
-}
-
-//--------------------------------------------------------------------+
 // UART Helper
 //--------------------------------------------------------------------+
 
@@ -82,9 +60,10 @@ __time_critical_func (uart_read) (uart_inst_t *uart, uint8_t *dst, size_t maxlen
     result++;
     maxlen--;
   }
-
+  
   return result;
 }
+
 
 //--------------------------------------------------------------------+
 // MIDI Task
@@ -101,34 +80,31 @@ void midi_task(void)
   uint8_t packet[4];
   if (tud_midi_available() && uart_is_writable(uart0))
   {
-    tud_midi_packet_read(packet);
+      tud_midi_packet_read(packet);
+      char msg[64] = { 0 };
 
-    static const size_t cin_to_length[] =
-      {0, 0, 2, 3, 3, 1, 2, 3, 3, 3, 3, 3, 2, 2, 3, 1};
+      static const size_t cin_to_length[] =
+      { 0, 0, 2, 3, 3, 1, 2, 3, 3, 3, 3, 3, 2, 2, 3, 1 };
 
-    uint8_t cid = packet[0] & 0xF;
+      uint8_t cid = packet[0] & 0xF;
 #ifdef IGNORE_MIDI_CC
-    if (cid != 0x0B && cid != 0x0C)
+      if (cid != 0x0B && cid != 0x0C)
 #endif
-    {
-      size_t length = cin_to_length[cid];
-      if (length)
       {
-        mutex_enter_blocking(DataMutex);
-        midi_data.cn_cin = packet[0];
-        midi_data.command = packet[1];
-        midi_data.data1 = packet[2];
-        midi_data.data2 = packet[3];
-        mutex_exit(DataMutex);
-        uart_write_blocking(uart0, packet+1, length);
+          uint32_t dmesg = ((uint32_t)packet[0] << 24) | ((uint32_t)packet[1] << 16) | ((uint32_t)packet[2] << 8) | (uint32_t)packet[3];
+          xTaskNotify(display_handle, dmesg, eSetValueWithOverwrite);
+          size_t length = cin_to_length[cid];
+          if (length)
+          {
+              uart_write_blocking(uart0, packet + 1, length);
+          }
       }
-    }
 
-    led_usb_state = true;
+      led_usb_state = true;
   }
   else
   {
-    led_usb_state = false;
+      led_usb_state = false;
   }
 
   // Handle UART to USB direction
@@ -139,13 +115,13 @@ void midi_task(void)
   size_t length = buf_valid - buf_pos;
   if (length)
   {
-    buf_pos += tud_midi_stream_write(0, buffer + buf_pos, length);
-    if (buf_pos < buf_valid)
-    {
-      return;
-    }
+      buf_pos += tud_midi_stream_write(0, buffer + buf_pos, length);
+      if (buf_pos < buf_valid)
+      {
+          return;
+      }
   }
-
+  
   buf_valid = uart_read(uart0, buffer, sizeof buffer);
   if (buf_valid)
   {
@@ -161,40 +137,21 @@ void midi_task(void)
   }
 }
 
-//--------------------------------------------------------------------+
-// LED Task
-//--------------------------------------------------------------------+
-
-void led_task(void)
-{
-  static uint32_t last_active_ms = 0;
-
-  if (led_usb_state || led_uart_state)
-  {
-    board_led_write(true);
-
-    last_active_ms = board_millis();
-  }
-  else if (board_millis() - last_active_ms > 10)
-  {
-    board_led_write(false);
-  }
-}
 
 // CORE Task
 void midi_core(void)
 {
     //    multicore_fifo_push_blocking(FLAG_VALUE);
     //    uint32_t g = multicore_fifo_pop_blocking();
-    board_init();
+    
+    // Tiny USB init
+//    tusb_init();
 
-    tusb_init();
-
-    init_midi();
+//    init_midi();
 
     while (true)
     {
-        tud_task();   // tinyusb device task
+//        tud_task();   // tinyusb device task
         led_task();
         midi_task();
     }

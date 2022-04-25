@@ -3,7 +3,7 @@
 #include <pico/stdlib.h>
 //#include "vars.h"
 #include"handlers.h"
-#include "list.h"
+#include "LinkedList.h"
 
 uint8_t tx_channel = 1;
 uint8_t rx_channel = 0;

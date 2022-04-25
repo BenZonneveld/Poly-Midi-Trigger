@@ -3,7 +3,7 @@
 #include <pico/stdlib.h>
 
 #include "vars.h"
-#include "list.h"
+#include "LinkedList.h"
 
 uint8_t arp_mode;
 int8_t arp_note = 0;

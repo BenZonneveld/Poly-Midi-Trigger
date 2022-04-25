@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <pico/stdlib.h>
-//#include <types.h>
+#include <pico.h>
 #include "vars.h"
-#include "list.h"
+#include "LinkedList.h"
 #include "handlers.h"
 
 struct node* head = NULL;

@@ -29,123 +29,149 @@ SPDX-License-Identifier: MIT-0
 #include <stdio.h>
 #include <wchar.h>
 #include <pico/stdlib.h>
-#include <pico/multicore.h>
+#include <hardware/rtc.h>
+#include <pico/util/datetime.h>
+#include "pico/stdio/driver.h"
 
-#include "midi/struct.h"
-#include <midi.h>
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include "queue.h"
+#include "task.h"
+#include "rtos_hooks.h"
 
+#include <bsp/board.h>
+#include <tusb.h>
 #include <sys/time.h>
+
+#include "main.h"
 
 #include <hagl_hal.h>
 #include <hagl.h>
-#include <font6x9.h>
-#include <fps.h>
-#include <aps.h>
 
+#include "disp_hagl.h"
 
-mutex_t *DataMutex;
-//mutex_t DataMutex;
+#include "midi/struct.h"
+#include "midi.h"
+#include "cdc.h"
 
-volatile bool fps_flag = false;
-static float effect_fps;
-static float display_bps;
+// static task for usbd
+// Increase stack size when debug log is enabled
+#if CFG_TUSB_DEBUG
+#define USBD_STACK_SIZE     (3*configMINIMAL_STACK_SIZE)
+#else
+#define USBD_STACK_SIZE     (3*configMINIMAL_STACK_SIZE)
+#endif
 
-static bitmap_t *bb;
-wchar_t message[64];
+//StackType_t  usb_device_stack[USBD_STACK_SIZE];
+//StaticTask_t usb_device_taskdef;
 
-static const uint64_t US_PER_FRAME_60_FPS = 1000000 / 60;
-static const uint64_t US_PER_FRAME_30_FPS = 1000000 / 30;
-static const uint64_t US_PER_FRAME_25_FPS = 1000000 / 25;
+// static task for cdc
+#define CDC_STACK_SIZE      configMINIMAL_STACK_SIZE
+//StackType_t  cdc_stack[CDC_STACK_SIZE];
+//StaticTask_t cdc_taskdef;
 
-bool show_timer_callback(struct repeating_timer *t) {
-    fps_flag = true;
-    return true;
-}
+// static task for midi
+#define MIDI_STACK_SIZE      configMINIMAL_STACK_SIZE
+//StackType_t  midi_stack[MIDI_STACK_SIZE];
+//StaticTask_t midi_taskdef;
 
-void static inline show_fps() {
-    color_t green = hagl_color(0, 255, 0);
+#define SCREEN_STACK_SIZE      configMINIMAL_STACK_SIZE
 
-    fps_flag = 0;
+//StackType_t  usb_device_stack[USBD_STACK_SIZE];
+//StaticTask_t usb_device_taskdef;
 
-    /* Set clip window to full screen so we can display the messages. */
-    hagl_set_clip_window(0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1);
+TaskHandle_t xHandle = NULL;
+TaskHandle_t usb_device_handle = NULL;
+TaskHandle_t midi_handle = NULL;
+TaskHandle_t display_handle = NULL;
 
-    /* Print the message on lower left corner. */
-    swprintf(message, sizeof(message), L"%.*f FPS  ", 0, effect_fps);
-    hagl_put_text(message, 4, DISPLAY_HEIGHT - 14, green, font6x9);
+datetime_t t = {
+        .year = 2020,
+        .month = 06,
+        .day = 05,
+        .dotw = 5, // 0 is Sunday, so 5 is Friday
+        .hour = 15,
+        .min = 45,
+        .sec = 00
+};
 
-    /* Print the message on lower right corner. */
-    swprintf(message, sizeof(message), L"%.*f KBPS  ", 0, display_bps / 1000);
-    hagl_put_text(message, DISPLAY_WIDTH - 60, DISPLAY_HEIGHT - 14, green, font6x9);
+// USB Device Driver task
+// This top level thread process all usb events and invoke callbacks
+void usb_device_task(void* param)
+{
+    (void)param;
 
-    uint32_t owner_out;
-    if (mutex_try_enter(DataMutex, &owner_out))
+    // This should be called after scheduler/kernel is started.
+    // Otherwise it could cause kernel issue since USB IRQ handler does use RTOS queue API.
+    tusb_init();
+
+    // RTOS forever loop
+    while (1)
     {
-        /* Set clip window to full screen so we can display the messages. */
-//        hagl_set_clip_window(0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1);
-
-        struct s_midi_data mdata = get_midi_data();
- 
-        /* Print the message on lower left corner. */
-        swprintf(message, sizeof(message), L"%.2X %.2X %.2X %.2X   ", mdata.cn_cin, mdata.command, mdata.data1, mdata.data2);
-        hagl_put_text(message, 4, DISPLAY_HEIGHT - 28, hagl_color(255,255,255), font6x9);
-        
-        mutex_exit(DataMutex);
+        // tinyusb device task
+        tud_task();
     }
-
-    /* Set clip window back to smaller so effects do not mess the messages. */
-    hagl_set_clip_window(0, 20, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 21);
 }
 
-void screen_core(void){
-    size_t bytes = 0;
-    struct repeating_timer show_timer;
-
-    hagl_init();
-    hagl_clear_screen();
-    hagl_set_clip_window(0, 20, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 21);
-
-    /* Update displayed FPS counter every 250 ms. */
-    add_repeating_timer_ms(250, show_timer_callback, NULL, &show_timer);
-
-    while (1) {
-        /* Update the displayed fps if requested. */
-        if (fps_flag) {
-            show_fps();
-        }
-
-
-        /* Flush back buffer contents to display. NOP if single buffering. */
-        bytes = hagl_flush();
-
-        display_bps = aps(bytes);
-        effect_fps = fps();
-
-        /* Cap the demos to 60 fps. This is mostly to accommodate to smaller */
-        /* screens where plasma will run too fast. */
-    };
-
+void miditsk(void* param)
+{
+    while (1)
+    {
+        midi_task();
+    }
 }
-
 
 int main()
 {
-    set_sys_clock_khz(133000, true); /// Seems to conflict with tinyusb ?!
-    stdio_init_all();
-    mutex_init(DataMutex);
+//    set_sys_clock_khz(133000, true); /// Seems to conflict with tinyusb ?!
+    board_init();
+//    init_midi();
+    hagl_init();
+//    sleep_ms(2500);
+    // Create a task for tinyusb device stack
+//    (void)xTaskCreateStatic(usb_device_task, "usbd", USBD_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, usb_device_stack, &usb_device_taskdef);
+    (void)xTaskCreate(usb_device_task, "usbd", USBD_STACK_SIZE, NULL, configMAX_PRIORITIES - 1,  &usb_device_handle);
+    // Create CDC task
+//    (void)xTaskCreateStatic(cdc_task, "cdc", CDC_STACK_SIZE, NULL, configMAX_PRIORITIES - 2, cdc_stack, &cdc_taskdef);
+    (void)xTaskCreate(cdc_task, "cdc", CDC_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &xHandle);
 
-    multicore_launch_core1(midi_core);
+    // Create MIDI Task
+    (void)xTaskCreate(miditsk, "midi", MIDI_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &midi_handle);
 
+    // Display Task
+    (void)xTaskCreate(screen_core_hagl, "screen", SCREEN_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &display_handle);
+
+    char datetime_buf[256];
+    char* datetime_str = &datetime_buf[0];
+
+    // Start the RTC
+    rtc_init();
+    rtc_set_datetime(&t);
+
+    //stdio_init_all();
+    //mutex_init(DataMutex);
+
+ //   multicore_launch_core1(midi_core);
+ //   midi_core();
     // Wait for it to start up
 
+    //while (1)
+    //{
+    //    ;
+    //}
 //    uint32_t g = multicore_fifo_pop_blocking();
 
        /* Sleep so that we have time top open serial console. */
-    //   sleep_ms(5000);
-    screen_core();
+    //   sleep_ms(5000)
+//    screen_core_hagl();
+//    screen_core_st7735();
 
-    while (1)
-    { }
+    vTaskStartScheduler();
 
+    char msg[32] = { 0 };
+    snprintf(msg, sizeof(msg), "End of Program\r\n");
+    tud_cdc_write(msg, sizeof(msg));
+    tud_cdc_write_flush();
+  
     return 0;
 }
