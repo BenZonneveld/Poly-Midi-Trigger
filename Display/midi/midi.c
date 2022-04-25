@@ -85,12 +85,17 @@ void midi_task(void)
       if (cid != 0x0B && cid != 0x0C)
 #endif
       {
+          size_t length = cin_to_length[cid];
+          if ( length < 3) packet[3] = 0;
+          if (length < 2) packet[2] = 0;
+          if (length < 1) packet[1] = 0;
+
           uint32_t dmesg = ((uint32_t)packet[0] << 24) | ((uint32_t)packet[1] << 16) | ((uint32_t)packet[2] << 8) | (uint32_t)packet[3];
           xTaskNotify(display_handle, dmesg, eSetValueWithOverwrite);
           
           MidiHandler(packet[0]<<4, packet[2], packet[3], packet[1]&0xF);
       
-          size_t length = cin_to_length[cid];
+//          size_t length = cin_to_length[cid];
           if (length)
           {
               uart_write_blocking(uart0, packet + 1, length);
