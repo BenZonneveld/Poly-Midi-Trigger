@@ -43,9 +43,9 @@ target_sources(${PROJECT} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/rtos_hooks.c
   ${CMAKE_CURRENT_SOURCE_DIR}/device_callbacks.c
   ${CMAKE_CURRENT_SOURCE_DIR}/midi/midi.c
-#  ${CMAKE_CURRENT_SOURCE_DIR}/midi/LinkedList.c 
-#  ${CMAKE_CURRENT_SOURCE_DIR}/midi/handlers.c
-#  ${CMAKE_CURRENT_SOURCE_DIR}/midi/Arp.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi/LinkedList.c 
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi/handlers.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi/Arp.c
   ${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/port.c
 )
 

@@ -6,8 +6,8 @@
 #include "LinkedList.h"
 #include "handlers.h"
 
-struct node* head = NULL;
-struct node* current = NULL;
+static struct node* head = NULL;
+static struct node* current = NULL;
 
 //display the list
 //void ListPrint() {

@@ -5,6 +5,9 @@
 #include"handlers.h"
 #include "LinkedList.h"
 
+#include <string.h>
+#include "cdc.h"
+
 uint8_t tx_channel = 1;
 uint8_t rx_channel = 0;
 uint8_t trigger_channel = 2;
@@ -13,12 +16,16 @@ bool state = false;
 
 void MidiHandler(uint8_t DataType, uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
+    char msg[64];
     //#ifdef DEBUG
     //  Serial.print("DataType: "); Serial.print(DataType, HEX);
     //  Serial.print(" Byte1: "); Serial.print(Note, HEX);
     //  Serial.print(" Byte2: "); Serial.print(Velo, HEX);
     //  Serial.print(" Chan: "); Serial.println(Channel, HEX);
     //#endif  
+    snprintf(msg, sizeof(msg), "Channel: %.2X  %.2X\r\n", Channel, rx_channel);
+    tud_print(msg);
+
     switch (DataType)
     {
     case 0x90:  // Note on
@@ -57,6 +64,8 @@ void MidiHandler(uint8_t DataType, uint8_t Note, uint8_t Velo, uint8_t Channel)
         }
         break;
     }
+    snprintf(msg, sizeof(msg), "ListLength: %i\r\n", ListLength());
+    tud_print(msg);
 }
 
 void noteOn(uint8_t channel, uint8_t pitch, uint8_t velocity) {

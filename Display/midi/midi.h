@@ -20,6 +20,5 @@ void tud_suspend_cb(bool remote_wakeup_en);
 void tud_resume_cb(void);
 static size_t __time_critical_func (uart_read) (uart_inst_t *uart, uint8_t *dst, size_t maxlen);
 void midi_task(void);
-struct s_midi_data get_midi_data();
 #endif
 

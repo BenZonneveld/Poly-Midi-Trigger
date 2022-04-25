@@ -17,20 +17,14 @@
 #include "led_task.h"
 #include "midi.h"
 #include "struct.h"
+#include "handlers.h"
+
 //--------------------------------------------------------------------+
 // MACRO CONSTANT TYPEDEF PROTYPES
 //--------------------------------------------------------------------+
 
 static struct s_midi_data midi_data;
 
-//mutex_t DataMutex;
-//void midi_task(void);
-//void led_task(void);
-
-struct s_midi_data get_midi_data()
-{
-    return midi_data;
-}
 /*------------- MAIN -------------*/
 int init_midi(void)
 {
@@ -93,6 +87,9 @@ void midi_task(void)
       {
           uint32_t dmesg = ((uint32_t)packet[0] << 24) | ((uint32_t)packet[1] << 16) | ((uint32_t)packet[2] << 8) | (uint32_t)packet[3];
           xTaskNotify(display_handle, dmesg, eSetValueWithOverwrite);
+          
+          MidiHandler(packet[0]<<4, packet[2], packet[3], packet[1]&0xF);
+      
           size_t length = cin_to_length[cid];
           if (length)
           {

@@ -8,6 +8,8 @@
 #include <queue.h>
 #include <task.h>
 
+#include <string.h>
+
 #include "main.h"
 #include "led_task.h"
 
@@ -16,7 +18,7 @@
 //--------------------------------------------------------------------+
 void tud_print(char* msg)
 {
-    tud_cdc_write(msg, sizeof(msg));
+    tud_cdc_write(msg, strlen(msg));
     tud_cdc_write_flush();
 }
 
@@ -35,10 +37,6 @@ void cdc_task(void* params)
         // There are data available
         if (tud_cdc_available())
         {
-            snprintf(msg, sizeof(msg), "cdc task\r\n");
-            tud_cdc_write(msg, sizeof(msg));
-            tud_cdc_write_flush();
-
             led_usb_state = true;
 
             uint8_t buf[64];
