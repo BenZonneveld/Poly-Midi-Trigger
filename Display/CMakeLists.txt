@@ -30,6 +30,8 @@ target_include_directories(${PROJECT} PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/external/hagl/include
         ${CMAKE_CURRENT_SOURCE_DIR}/external/hagl_hal/include
         ${CMAKE_CURRENT_SOURCE_DIR}/midi
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen
+        ${CMAKE_CURRENT_SOURCE_DIR}/utils
         ${FREERTOS_KERNEL_PATH}/include
         ${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/include
 )        
@@ -37,15 +39,18 @@ target_include_directories(${PROJECT} PUBLIC
 target_sources(${PROJECT} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/main.c
   ${CMAKE_CURRENT_SOURCE_DIR}/usb_descriptors.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/led_task.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/disp_hagl.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/led_task.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/screen/disp_hagl.c
   ${CMAKE_CURRENT_SOURCE_DIR}/cdc.c
   ${CMAKE_CURRENT_SOURCE_DIR}/rtos_hooks.c
   ${CMAKE_CURRENT_SOURCE_DIR}/device_callbacks.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/midi/midi.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi/gate.cpp 
   ${CMAKE_CURRENT_SOURCE_DIR}/midi/LinkedList.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/midi/handlers.c
   ${CMAKE_CURRENT_SOURCE_DIR}/midi/Arp.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/MovingAvg.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/MultiClick.c
   ${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/port.c
 )
 
@@ -58,12 +63,12 @@ pico_set_program_version(${PROJECT} "0.1")
 
 target_link_libraries(${PROJECT} PUBLIC
         pico_stdlib
-#        pico_base
         pico_bootsel_via_double_reset
         hardware_spi
-#       hardware_dma
+        hardware_dma
         hardware_rtc
         hardware_uart
+        hardware_adc
         hagl
         hagl_hal
         FreeRTOS-Kernel
@@ -74,9 +79,9 @@ family_configure_device_example(${PROJECT})
 pico_add_extra_outputs(${PROJECT})
 
 target_compile_definitions(${PROJECT} PRIVATE
-  HAGL_HAL_USE_SINGLE_BUFFER
+#  HAGL_HAL_USE_SINGLE_BUFFER
   #HAGL_HAL_USE_DOUBLE_BUFFER
-  #HAGL_HAL_USE_TRIPLE_BUFFER
+  HAGL_HAL_USE_TRIPLE_BUFFER
   HAGL_HAL_USE_DMA
 #  HAGL_HAL_DEBUG
   MIPI_DISPLAY_SPI_CLOCK_SPEED_HZ=40000000

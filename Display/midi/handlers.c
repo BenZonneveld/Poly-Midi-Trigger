@@ -6,7 +6,9 @@
 #include "LinkedList.h"
 
 #include <string.h>
+#if DEBUG
 #include "cdc.h"
+#endif
 
 uint8_t tx_channel = 1;
 uint8_t rx_channel = 0;
@@ -16,13 +18,6 @@ bool state = false;
 
 void MidiHandler(uint8_t DataType, uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
-    //#ifdef DEBUG
-    //  Serial.print("DataType: "); Serial.print(DataType, HEX);
-    //  Serial.print(" Byte1: "); Serial.print(Note, HEX);
-    //  Serial.print(" Byte2: "); Serial.print(Velo, HEX);
-    //  Serial.print(" Chan: "); Serial.println(Channel, HEX);
-    //#endif  
-
     switch (DataType)
     {
     case 0x90:  // Note on

@@ -13,7 +13,10 @@
 //#include <sys/time.h>
 
 #include "main.h"
+#if DEBUG
 #include "cdc.h"
+#endif
+
 #include "led_task.h"
 #include "midi.h"
 #include "struct.h"
@@ -95,7 +98,6 @@ void midi_task(void)
           
           MidiHandler(packet[0]<<4, packet[2], packet[3], packet[1]&0xF);
       
-//          size_t length = cin_to_length[cid];
           if (length)
           {
               uart_write_blocking(uart0, packet + 1, length);
@@ -139,21 +141,11 @@ void midi_task(void)
   }
 }
 
-
 // CORE Task
 void midi_core(void)
 {
-    //    multicore_fifo_push_blocking(FLAG_VALUE);
-    //    uint32_t g = multicore_fifo_pop_blocking();
-    
-    // Tiny USB init
-//    tusb_init();
-
-//    init_midi();
-
     while (true)
     {
-//        tud_task();   // tinyusb device task
         led_task();
         midi_task();
     }

@@ -197,8 +197,8 @@ char const* string_desc_arr [] =
   "TinyUSB",                     // 1: Manufacturer
   "TinyUSB Device",              // 2: Product
   "123457",                      // 3: Serials, should use chip ID
-  "Tiny USB CDC",
-  "Tiny USB MIDI",
+  "Tiny CDC",
+  "Tiny MIDI",
 };
 
 static uint16_t _desc_str[32];

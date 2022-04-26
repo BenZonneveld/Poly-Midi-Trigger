@@ -11,11 +11,13 @@
 #define MINTRIG   5
 #define DATAPOINTS 4
 #define NOTELENGTH  A1
+#define NOTELENGTH_ADC_IN 0
 #define PARAM       A0
+#define PARAM_ADC_IN 1
 #define MENUBUTTON  8
 #define MAXMENU     3
 
-//uint8_t menu_item = 0;
+uint8_t menu_item = 0;
 //volatile uint8_t state = false;
 //volatile uint8_t UpdateDisp = false;
 //int triglength = MINTRIG;
@@ -25,11 +27,11 @@
 extern uint8_t arp_mode;
 extern int8_t arp_note;
 
-//bool needsUpdate = false;
-//bool parequal = false;
+bool needsUpdate = false;
+bool parequal = false;
 //volatile uint8_t rand_length = 0;
-//uint8_t new_rand = 255;
-//bool menu_mode = false;
+uint8_t new_rand = 255;
+bool menu_mode = false;
 extern bool arpdir;
 //extern enum mode;
 

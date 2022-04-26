@@ -38,15 +38,16 @@ SPDX-License-Identifier: MIT-0
 #include "semphr.h"
 #include "queue.h"
 #include "task.h"
-//#include "rtos_hooks.h"
 #include "main.h"
 
 #include "midi/struct.h"
-//#include <midi.h>
 
 #include <sys/time.h>
 
+#if DEBUG
 #include"cdc.h"
+#endif
+
 #include <hagl_hal.h>
 #include <hagl.h>
 #include <font6x9.h>
@@ -54,15 +55,8 @@ SPDX-License-Identifier: MIT-0
 #include <fps.h>
 #include <aps.h>
 
-volatile bool fps_flag = false;
 static float effect_fps;
 static float display_bps;
-
-static bitmap_t *bb;
-
-static const uint64_t US_PER_FRAME_60_FPS = 1000000 / 60;
-static const uint64_t US_PER_FRAME_30_FPS = 1000000 / 30;
-static const uint64_t US_PER_FRAME_25_FPS = 1000000 / 25;
 
 static wchar_t wmessage[64];
 
@@ -81,12 +75,9 @@ void static inline show_display_hagl(uint8_t lines) {
     color_t green = hagl_color(0, 255, 0);
     char mesg[128] = { 0 };
 
-    fps_flag = 0;
-
     /* Print the message on lower left corner.*/ 
     snprintf(mesg, sizeof(mesg), "%.*f FPS  ", 0, effect_fps);
     charToWChar(mesg);
-//    swprintf(wmessage, sizeof(wmessage), L"%.*f FPS  ", 0, effect_fps);
     hagl_put_text(wmessage, 4, DISPLAY_HEIGHT - 14, green, font6x9);
 
     /* Print the message on lower right corner.*/ 
@@ -99,15 +90,6 @@ void static inline show_display_hagl(uint8_t lines) {
     charToWChar(mesg);
     hagl_put_text(wmessage, 4, 0 , hagl_color(255, 255, 255), font8x13O);
 
-//    uint32_t owner_out;
-//    if (mutex_try_enter(DataMutex, &owner_out))
-//    {
-        /* Set clip window to full screen so we can display the messages. */
-//        hagl_set_clip_window(0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1);
-
-//        struct s_midi_data mdata = get_midi_data();
- 
-        /* Print the message on lower left corner. */
     for (int i = lines; i >= 0; i--)
     {
         mdata.cn_cin = (uint8_t)(midilog[i] >> 24);
@@ -117,10 +99,8 @@ void static inline show_display_hagl(uint8_t lines) {
 
         snprintf(mesg, sizeof(mesg), "%.2X %.2X %.2X %.2X   ", mdata.cn_cin, mdata.command, mdata.data1, mdata.data2);
         charToWChar(mesg);
-        hagl_put_text(wmessage, 4, DISPLAY_HEIGHT - 26 - (i * 9), hagl_color(255, 255, 255), font6x9);
+        hagl_put_text(wmessage, 4, DISPLAY_HEIGHT - 26 - (i * 9), hagl_color(255-(20*i), 255 - (20 * i), 255 - (20 * i)), font6x9);
     }
-//       mutex_exit(DataMutex);
-//    }
 
 }
 
@@ -129,10 +109,10 @@ void screen_core_hagl(void *param) {
     struct repeating_timer show_timer;
     char mesg[128] = { 0 };
     uint32_t ulNotifiedValue;
-//    hagl_init();
+
     hagl_clear_screen();
     uint8_t lines = 0;
-    //    hagl_set_clip_window(0, 20, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 21);
+    
     /* Set clip window to full screen so we can display the messages. */
     hagl_set_clip_window(0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1);
 
@@ -158,3 +138,67 @@ void screen_core_hagl(void *param) {
         bytes = hagl_flush();
     };
 }
+
+
+/*void DoText(uint8_t Xpos, uint8_t Ypos, bool FontSize, char* text)
+{
+    display.setTextSize(FONTSIZE * (FontSize + 1));
+    display.setCursor(Xpos, Ypos);
+    display.print(text);
+}
+
+void CenterText(uint8_t Xcenter, uint8_t Ypos, bool FontSize, char* text)
+{
+    int16_t x1, y1;
+    uint16_t w, h;
+    display.setTextSize(FONTSIZE * (FontSize + 1));
+    display.getTextBounds(text, 0, 64, &x1, &y1, &w, &h);
+    display.setCursor(Xcenter - (w / 2), Ypos);
+    display.print(text);
+}
+
+// a row indicates 8 display lines
+void SetDisplayPart(uint8_t x, uint8_t cols, uint8_t row, uint8_t rows, bool color)
+{
+    uint8_t* buf = display.getBuffer();
+
+    for (uint8_t r = row; r < (row + rows); r++)
+    {
+        if (r > 7) break;
+        memset(buf + x + (128 * r), color ? 0xff : 0, cols);
+    }
+}
+
+void ShowLength()
+{
+    itoa(MINTRIG + triglength, buffer, 10);
+    SetDisplayPart(64, 64, 4, 4, BLACK);
+    CenterText(96, 59, true, buffer);
+}
+
+void ShowNotes()
+{
+    itoa(ListLength(), buffer, 10);
+    SetDisplayPart(0, 64, 0, 4, BLACK);
+    CenterText(32, 26, true, buffer);
+}
+
+void ShowDisplay()
+{
+    display.clearDisplay();
+    DoText(68, 11, false, "Active");
+    strcpy_P(buffer, (char*)pgm_read_word(&(namearp[arp_mode])));
+    CenterText(96, 28, false, buffer);
+
+    DoText(1, 44, false, "Length");
+    DoText(1, 62, false, "Rnd:");
+    ShowRand();
+}
+
+void ShowRand()
+{
+    SetDisplayPart(41, 23, 6, 2, BLACK);
+    itoa(rand_length, buffer, 10);
+    CenterText(50, 62, false, buffer);
+}
+*/
