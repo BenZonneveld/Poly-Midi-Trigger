@@ -4,8 +4,10 @@
 
 #include "vars.h"
 #include "LinkedList.h"
+#include "arp.h"
 
-uint8_t arp_mode;
+e_mode arp_mode = ARP_OFF;
+//uint8_t arp_mode;
 int8_t arp_note = 0;
 bool arpdir = false;
 

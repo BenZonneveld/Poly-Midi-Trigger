@@ -28,7 +28,7 @@ bool holdEventPast = false;    // whether or not the hold event happened already
 bool longHoldEventPast = false;// whether or not the long hold event happened already
 
 int checkButton() {
-    int event = BTNONE;
+    BTNEVNT event = BTNONE;
 
 //TODO    buttonVal = digitalRead(MENUBUTTON);
     unsigned long Millis = to_ms_since_boot(get_absolute_time());

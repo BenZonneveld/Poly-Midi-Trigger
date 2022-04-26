@@ -1,0 +1,1 @@
+Get-CimInstance -Class Win32_SerialPort -Filter 'PNPDeviceID LIKE "%cafe%"' | Select-Object -Property DeviceID

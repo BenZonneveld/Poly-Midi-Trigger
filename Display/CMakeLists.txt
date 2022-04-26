@@ -22,7 +22,6 @@ family_initialize_project(${PROJECT} ${CMAKE_CURRENT_LIST_DIR})
 
 add_subdirectory(external/hagl)
 add_subdirectory(external/hagl_hal)
-add_subdirectory(external/SSD1306)
 
 add_executable(${PROJECT})
 
@@ -30,6 +29,7 @@ target_include_directories(${PROJECT} PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/external/hagl/include
         ${CMAKE_CURRENT_SOURCE_DIR}/external/hagl_hal/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/SSD1306/include
         ${CMAKE_CURRENT_SOURCE_DIR}/midi
         ${CMAKE_CURRENT_SOURCE_DIR}/screen
         ${CMAKE_CURRENT_SOURCE_DIR}/utils
@@ -42,11 +42,12 @@ target_sources(${PROJECT} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/usb_descriptors.c
   ${CMAKE_CURRENT_SOURCE_DIR}/utils/led_task.c
   ${CMAKE_CURRENT_SOURCE_DIR}/screen/disp_hagl.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/screen/stringtable.c
   ${CMAKE_CURRENT_SOURCE_DIR}/cdc.c
   ${CMAKE_CURRENT_SOURCE_DIR}/rtos_hooks.c
   ${CMAKE_CURRENT_SOURCE_DIR}/device_callbacks.c
   ${CMAKE_CURRENT_SOURCE_DIR}/midi.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/midi/gate.cpp 
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi/maingate.cpp 
   ${CMAKE_CURRENT_SOURCE_DIR}/midi/LinkedList.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/midi/handlers.c
   ${CMAKE_CURRENT_SOURCE_DIR}/midi/Arp.c
