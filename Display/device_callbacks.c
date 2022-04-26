@@ -15,8 +15,6 @@ void tud_mount_cb(void)
 // Invoked when device is unmounted
 void tud_umount_cb(void)
 {
-//	led_usb_state = false;
-//	led_uart_state = false;
 }
 
 // Invoked when usb bus is suspended

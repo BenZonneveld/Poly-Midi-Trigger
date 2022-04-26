@@ -1,42 +1,22 @@
-## Old schoold demo effects for Raspberry Pi Pico
+## Polyphonic Midi Trigger
 
-![Pico effects](https://appelsiini.net/img/2021/pico-st7735-rotozoom.jpg)
+A long time ago when I first started making music I used the trigger output from a drum machine to gate the notes I pressed on the analog cv/gate synth I had.
+This way I only had to press the correct keys as the cv information was still comming from the keyboard while the rhythm came from the drum machine.
 
-Created to test the [HAGL graphics library](https://github.com/tuupola/hagl). For quick reference see the [recording on Vimeo](https://vimeo.com/510236080). If you cannot compile yourself build directory contains a [recent firmware](https://github.com/tuupola/pico_effects/raw/master/build/firmware.uf2).
+I wanted to recreate this while adding polyphonic features.
 
-## Compile
+## Features
+* Adjustable gate duration with optionial randomness on the duration
+* Responds to trigger/gate
+* Keyboard and Trigger channels via MIDI. These can't be the same channel
+* Optional Arppegiatior which plays the next note only after a trigger has been received.
+* USB MIDI and standard MIDI
 
-Below instructions assume you do not have [Raspberry Pi Pico SDK](https://github.com/raspberrypi/pico-sdk) installed yet.
-
-```
-$ git clone --recursive https://github.com/raspberrypi/pico-sdk.git
-$ git clone --recursive  https://github.com/tuupola/pico_effects.git
-$ cd pico_effects/build
-$ cmake ..
-$ make -j8
-```
-
-If the SDK is already installed you can pass the installation path manually.
-
-```
-$ git clone --recursive  https://github.com/tuupola/pico_effects.git
-$ cd pico_effects/build
-$ cmake .. -DPICO_SDK_PATH=../pico-sdk
-$ make -j8
-```
-
-You can then "flash" the firmware by putting the Pico into `BOOTSEL` mode and copying the uf2 file to the automatically mounted volume.
-
-```
-$ cp firmware.uf2 /run/media/<username>/RPI-RP2/
-```
-
-If you are using macOS the command would be the following.
-
-```
-$ cp firmware.uf2 /Volumes/RPI-RP2
-```
-
-## Run on computer
-
-HAGL is hardware agnostic. You can run the demos also [on your computer](https://github.com/tuupola/sdl2_effects).
+## Hardware needed
+RaspberryPi Pico
+2 potentiometers
+Omrohn type button
+2* 1N136 optocoupler
+MIDI Jacks
+6.3 mm jack for trigger input
+128x64 SPI Display

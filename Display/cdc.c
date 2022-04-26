@@ -1,7 +1,5 @@
 #include <bsp/board.h>
 #include <tusb.h>
-//#include <hardware/uart.h>
-//#include <hardware/gpio.h>
 
 #include <FreeRTOS.h>
 #include "semphr.h"
@@ -30,10 +28,6 @@ void cdc_task(void* params)
     // RTOS forever loop
     while (1)
     {
-        // connected() check for DTR bit
-        // Most but not all terminal client set this when making connection
-        // if ( tud_cdc_connected() )
-
         // There are data available
         if (tud_cdc_available())
         {
@@ -49,17 +43,16 @@ void cdc_task(void* params)
             // Note: Skip echo by commenting out write() and write_flush()
             // for throughput test e.g
             //    $ dd if=/dev/zero of=/dev/ttyACM0 count=10000
-            tud_cdc_write(buf, count);
-            tud_cdc_write_flush();
+            //tud_cdc_write(buf, count);
+            //tud_cdc_write_flush();
         }
         else {
             led_usb_state = false;
         }
         led_task();
 
-
         // For ESP32-S2 this delay is essential to allow idle how to run and reset wdt
-        vTaskDelay(pdMS_TO_TICKS(10));
+//        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 

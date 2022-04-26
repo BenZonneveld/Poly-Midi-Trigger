@@ -30,6 +30,9 @@ SPDX-License-Identifier: MIT-0
 #include <wchar.h>
 #include <pico/stdlib.h>
 #include <hardware/rtc.h>
+#include "hardware/gpio.h"
+#include "hardware/adc.h"
+
 #include <pico/util/datetime.h>
 #include "pico/stdio/driver.h"
 
@@ -45,8 +48,8 @@ SPDX-License-Identifier: MIT-0
 
 #include "main.h"
 
-#include <hagl_hal.h>
-#include <hagl.h>
+#include "hagl_hal.h"
+#include "hagl.h"
 
 #include "disp_hagl.h"
 
@@ -62,23 +65,12 @@ SPDX-License-Identifier: MIT-0
 #define USBD_STACK_SIZE     (3*configMINIMAL_STACK_SIZE)
 #endif
 
-//StackType_t  usb_device_stack[USBD_STACK_SIZE];
-//StaticTask_t usb_device_taskdef;
-
-// static task for cdc
 #define CDC_STACK_SIZE      configMINIMAL_STACK_SIZE
-//StackType_t  cdc_stack[CDC_STACK_SIZE];
-//StaticTask_t cdc_taskdef;
 
 // static task for midi
 #define MIDI_STACK_SIZE      configMINIMAL_STACK_SIZE
-//StackType_t  midi_stack[MIDI_STACK_SIZE];
-//StaticTask_t midi_taskdef;
 
 #define SCREEN_STACK_SIZE      configMINIMAL_STACK_SIZE
-
-//StackType_t  usb_device_stack[USBD_STACK_SIZE];
-//StaticTask_t usb_device_taskdef;
 
 TaskHandle_t xHandle = NULL;
 TaskHandle_t usb_device_handle = NULL;
@@ -125,14 +117,16 @@ int main()
 {
 //    set_sys_clock_khz(133000, true); /// Seems to conflict with tinyusb ?!
     board_init();
-//    init_midi();
+    init_midi();
     hagl_init();
-//    sleep_ms(2500);
+    adc_init();
+    adc_gpio_init(NOTELENGTH);
+    adc_gpio_init(PARAM);
+
+
     // Create a task for tinyusb device stack
-//    (void)xTaskCreateStatic(usb_device_task, "usbd", USBD_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, usb_device_stack, &usb_device_taskdef);
     (void)xTaskCreate(usb_device_task, "usbd", USBD_STACK_SIZE, NULL, configMAX_PRIORITIES - 1,  &usb_device_handle);
     // Create CDC task
-//    (void)xTaskCreateStatic(cdc_task, "cdc", CDC_STACK_SIZE, NULL, configMAX_PRIORITIES - 2, cdc_stack, &cdc_taskdef);
     (void)xTaskCreate(cdc_task, "cdc", CDC_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &xHandle);
 
     // Create MIDI Task
@@ -148,30 +142,7 @@ int main()
     rtc_init();
     rtc_set_datetime(&t);
 
-    //stdio_init_all();
-    //mutex_init(DataMutex);
-
- //   multicore_launch_core1(midi_core);
- //   midi_core();
-    // Wait for it to start up
-
-    //while (1)
-    //{
-    //    ;
-    //}
-//    uint32_t g = multicore_fifo_pop_blocking();
-
-       /* Sleep so that we have time top open serial console. */
-    //   sleep_ms(5000)
-//    screen_core_hagl();
-//    screen_core_st7735();
-
     vTaskStartScheduler();
 
-    char msg[32] = { 0 };
-    snprintf(msg, sizeof(msg), "End of Program\r\n");
-    tud_cdc_write(msg, sizeof(msg));
-    tud_cdc_write_flush();
-  
     return 0;
 }
