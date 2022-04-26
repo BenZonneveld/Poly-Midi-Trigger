@@ -47,10 +47,10 @@ SPDX-License-Identifier: MIT-0
 #include <sys/time.h>
 
 #include "main.h"
+#include "vars.h"
 
 #include "hagl_hal.h"
 #include "hagl.h"
-
 #include "disp_hagl.h"
 
 #include "midi/struct.h"
@@ -122,7 +122,8 @@ int main()
     adc_init();
     adc_gpio_init(NOTELENGTH);
     adc_gpio_init(PARAM);
-
+//TODO
+// Initialize GPIO for the Trigger input
 
     // Create a task for tinyusb device stack
     (void)xTaskCreate(usb_device_task, "usbd", USBD_STACK_SIZE, NULL, configMAX_PRIORITIES - 1,  &usb_device_handle);

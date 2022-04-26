@@ -22,6 +22,7 @@ family_initialize_project(${PROJECT} ${CMAKE_CURRENT_LIST_DIR})
 
 add_subdirectory(external/hagl)
 add_subdirectory(external/hagl_hal)
+add_subdirectory(external/SSD1306)
 
 add_executable(${PROJECT})
 

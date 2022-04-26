@@ -29,10 +29,11 @@ bool longHoldEventPast = false;// whether or not the long hold event happened al
 
 int checkButton() {
     int event = BTNONE;
-    buttonVal = digitalRead(MENUBUTTON);
-    unsigned long Millis = millis();
+
+//TODO    buttonVal = digitalRead(MENUBUTTON);
+    unsigned long Millis = to_ms_since_boot(get_absolute_time());
     // Button pressed down
-    if (buttonVal == LOW && buttonLast == HIGH && (Millis - upTime) > debounce)
+    if (buttonVal == false && buttonLast == true && (Millis - upTime) > debounce)
     {
         downTime = Millis;
         ignoreUp = false;
@@ -45,9 +46,9 @@ int checkButton() {
         DCwaiting = false;
     }
     // Button released
-    else if (buttonVal == HIGH && buttonLast == LOW && (Millis - downTime) > debounce)
+    else if (buttonVal == true && buttonLast == false && (Millis - downTime) > debounce)
     {
-        if (not ignoreUp)
+        if ( !ignoreUp)
         {
             upTime = Millis;
             if (DConUp == false) DCwaiting = true;
@@ -61,15 +62,15 @@ int checkButton() {
         }
     }
     // Test for normal click event: DCgap expired
-    if (buttonVal == HIGH && (Millis - upTime) >= DCgap && DCwaiting == true && DConUp == false && singleOK == true && event != 2)
+    if (buttonVal == true && (Millis - upTime) >= DCgap && DCwaiting == true && DConUp == false && singleOK == true && event != 2)
     {
         event = BTCLICK;
         DCwaiting = false;
     }
     // Test for hold
-    if (buttonVal == LOW && (Millis - downTime) >= holdTime) {
+    if (buttonVal == false && (Millis - downTime) >= holdTime) {
         // Trigger "normal" hold
-        if (not holdEventPast)
+        if ( !holdEventPast)
         {
             event = BTHOLD;
             waitForUp = true;
@@ -82,7 +83,7 @@ int checkButton() {
         // Trigger "long" hold
         if ((Millis - downTime) >= longHoldTime)
         {
-            if (not longHoldEventPast)
+            if ( !longHoldEventPast)
             {
                 event = BTLONG;
                 longHoldEventPast = true;
