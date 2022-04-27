@@ -28,6 +28,10 @@
 
 static struct s_midi_data midi_data;
 
+uint8_t tx_channel = 1;
+uint8_t rx_channel = 0;
+uint8_t trigger_channel = 2;
+
 /*------------- MAIN -------------*/
 int init_midi(void)
 {

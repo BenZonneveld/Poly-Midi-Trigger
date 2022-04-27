@@ -12,6 +12,10 @@
 
 #define FLAG_VALUE 123
 
+extern uint8_t tx_channel;
+extern uint8_t rx_channel;
+extern uint8_t trigger_channel;
+
 int init_midi(void);
 void midi_core(void);
 void tud_mount_cb(void);

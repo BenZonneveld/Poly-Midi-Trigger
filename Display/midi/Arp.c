@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <pico/stdlib.h>
 
-#include "vars.h"
+//#include "vars.h"
 #include "LinkedList.h"
 #include "arp.h"
 

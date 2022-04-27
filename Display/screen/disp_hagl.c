@@ -60,6 +60,10 @@ SPDX-License-Identifier: MIT-0
 #include "LinkedList.h"
 #include "disp_hagl.h"
 #include "maingate.h"   // For map/min/max functions
+#include "arp.h"
+#include "midi.h"
+
+char buffer[10];
 static float effect_fps;
 static float display_bps;
 

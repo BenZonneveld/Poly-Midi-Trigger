@@ -67,7 +67,7 @@ uint8_t oldnotecount = 0;
 uint8_t oldparam = 0;
 bool needsUpdate = false;
 bool parequal = false;
-volatile uint8_t rand_length = 0;
+uint8_t rand_length = 0;
 uint8_t new_rand = 255;
 bool menu_mode = false;
 

@@ -10,9 +10,9 @@
 #include "cdc.h"
 #endif
 
-uint8_t tx_channel = 1;
-uint8_t rx_channel = 0;
-uint8_t trigger_channel = 2;
+//uint8_t tx_channel = 1;
+//uint8_t rx_channel = 0;
+//uint8_t trigger_channel = 2;
 
 bool state = false;
 

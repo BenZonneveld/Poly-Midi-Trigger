@@ -4,7 +4,6 @@
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define FONTSIZE    1
-char	buffer[10];
 #define MAXNOTES  16
 #define TRIG_PIN  7
 #define MAXLOOP   512
@@ -17,21 +16,21 @@ char	buffer[10];
 #define MENUBUTTON  8
 #define MAXMENU     3
 
-extern uint8_t menu_item;
+extern char	buffer[];
 //volatile uint8_t state = false;
 extern uint8_t UpdateDisp;
 extern int triglength;
 
-uint8_t oldnotecount;
-uint8_t oldparam;
+extern uint8_t oldnotecount;
+extern uint8_t oldparam;
 //extern uint8_t arp_mode;
 extern int8_t arp_note;
 
-bool needsUpdate;
-bool parequal;
-volatile uint8_t rand_length;
-uint8_t new_rand;
-bool menu_mode;
+extern bool needsUpdate;
+extern bool parequal;
+extern uint8_t rand_length;
+extern uint8_t new_rand;
+extern bool menu_mode;
 extern bool arpdir;
 //extern enum mode;
 
@@ -40,6 +39,7 @@ extern bool arpdir;
 //extern enum eeprom;// { EEPROM_ARP, EEPROM_TX, EEPROM_RX, EEPROM_TRIG };
 //extern e_mode arp_mode;
 
+extern const char* const txt_options[];
 extern const char* const nameArp[];
 extern const char* const namearp[];
 extern const char* const nameOpt[];
