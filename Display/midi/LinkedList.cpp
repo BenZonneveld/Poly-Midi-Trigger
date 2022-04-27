@@ -3,11 +3,13 @@
 #include <pico/stdlib.h>
 #include <pico.h>
 #include "vars.h"
-#include "LinkedList.h"
+#include "LinkedList.hpp"
+
+#include "midi.h"
 #include "handlers.h"
 
-static struct node* head = NULL;
-static struct node* current = NULL;
+//static struct node* head = NULL;
+//static struct node* current = NULL;
 
 //display the list
 //void ListPrint() {
@@ -30,7 +32,7 @@ static struct node* current = NULL;
 //}
 
 //insert link at the first location
-void ListInsert(unsigned char note, unsigned char velo) {
+void LinkedList::ListInsert(unsigned char note, unsigned char velo) {
     // Check if the note is already in the list
     if (ListFindNote(note) != NULL) return;
 
@@ -61,7 +63,7 @@ void ListInsert(unsigned char note, unsigned char velo) {
 }
 
 //delete first item
-struct node* ListDeleteFirst() {
+struct node* LinkedList::ListDeleteFirst() {
     //save reference to first link
     struct node* tempLink = head;
 
@@ -75,7 +77,7 @@ struct node* ListDeleteFirst() {
 }
 
 //delete last item
-struct node* ListDeleteLast() {
+struct node* LinkedList::ListDeleteLast() {
     if (head == NULL) return NULL;
 
     if (head->next == NULL)
@@ -102,11 +104,11 @@ struct node* ListDeleteLast() {
 }
 
 //is list empty
-bool isListEmpty() {
+bool LinkedList::isListEmpty() {
     return head == NULL;
 }
 
-int ListLength() {
+int LinkedList::ListLength() {
     int length = 0;
     struct node* current;
 
@@ -118,7 +120,7 @@ int ListLength() {
 }
 
 //find a link with given key
-struct node* ListFindNote(unsigned char note) {
+struct node* LinkedList::ListFindNote(unsigned char note) {
     //start from the first link
     struct node* current = head;
 
@@ -145,7 +147,7 @@ struct node* ListFindNote(unsigned char note) {
 }
 
 //delete a link with given Note
-void ListDeleteNote(unsigned char Note)
+void LinkedList::ListDeleteNote(unsigned char Note)
 {
     struct node* temp = head;
     struct node* prev = NULL;
@@ -184,7 +186,7 @@ void ListDeleteNote(unsigned char Note)
 }
 
 // Do a bubble sort on the list
-void ListSort()
+void LinkedList::ListSort()
 {
     //    struct node *start = head;
 
@@ -215,7 +217,7 @@ void ListSort()
 }
 
 /* function to swap data of two nodes a and b*/
-void ListSwap(struct node* a, struct node* b)
+void LinkedList::ListSwap(struct node* a, struct node* b)
 {
     int tempNote = a->Note;
     int tempVelo = a->Velo;
@@ -229,7 +231,7 @@ void ListSwap(struct node* a, struct node* b)
     b->active = tempAct;
 }
 
-void ListSendNoteOn()
+void LinkedList::ListSendNoteOn()
 {
     struct node* ptr = head;
 
@@ -247,7 +249,7 @@ void ListSendNoteOn()
 //    TimerStart();
 }
 
-void ListSendNoteOff()
+void LinkedList::ListSendNoteOff()
 {
     struct node* ptr = head;
 
@@ -261,7 +263,7 @@ void ListSendNoteOff()
 //    TimerStop();
 }
 
-void ListNoteOn(uint8_t randNote)
+void LinkedList::ListNoteOn(uint8_t randNote)
 {
     struct node* ptr = head;
     uint8_t i = 0;

@@ -1,3 +1,10 @@
+//#include "vars.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <pico/stdlib.h>
+
+#include "midi.h"
+#include "arp.h"
 
 void LoadOptions()
 {
@@ -9,7 +16,7 @@ void LoadOptions()
 //        arp_mode = EEPROM.read(eeprom::ARP);
 //    }
 //    else {
-    arp_mode = mode::OFF;
+    arp_mode = ARP_OFF;
     //    }
 
         // RX Channel

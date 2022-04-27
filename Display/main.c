@@ -29,8 +29,8 @@
 #include "midi/struct.h"
 #include "midi.h"
 #include "cdc.h"
+//#include "midi/maingate.h"
 
-// static task for usbd
 // Increase stack size when debug log is enabled
 #if CFG_TUSB_DEBUG
 #define USBD_STACK_SIZE     (3*configMINIMAL_STACK_SIZE)
@@ -39,16 +39,15 @@
 #endif
 
 #define CDC_STACK_SIZE      configMINIMAL_STACK_SIZE
-
-// static task for midi
 #define MIDI_STACK_SIZE      configMINIMAL_STACK_SIZE
-
 #define SCREEN_STACK_SIZE      configMINIMAL_STACK_SIZE
+#define MAINGATE_STACK_SIZE      configMINIMAL_STACK_SIZE
 
 TaskHandle_t xHandle = NULL;
 TaskHandle_t usb_device_handle = NULL;
 TaskHandle_t midi_handle = NULL;
 TaskHandle_t display_handle = NULL;
+TaskHandle_t maingate_handle = NULL;
 
 datetime_t t = {
         .year = 2020,
@@ -103,9 +102,9 @@ int main()
     board_init();
     init_midi();
     hagl_init();
-    adc_init();
-    adc_gpio_init(NOTELENGTH);
-    adc_gpio_init(PARAM);
+//    adc_init();
+//    adc_gpio_init(NOTELENGTH);
+//    adc_gpio_init(PARAM);
 //TODO
 // Initialize GPIO for the Trigger input
 
@@ -119,6 +118,9 @@ int main()
 
     // Display Task
     (void)xTaskCreate(screen_core_hagl, "screen", SCREEN_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &display_handle);
+
+    // MainGate Task
+ //   (void)xTaskCreate(maingate, "maingate", MAINGATE_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &maingate_handle);
 
     char datetime_buf[256];
     char* datetime_str = &datetime_buf[0];

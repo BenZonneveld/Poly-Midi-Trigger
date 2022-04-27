@@ -71,10 +71,9 @@ bitmap_t *hagl_hal_init(void)
     bitmap_init(&bb, buffer2);
     bitmap_init(&bb, buffer1);
 
-#ifdef HAGL_HAL_DEBUG
     hagl_hal_debug("Back buffer 1 address is %p\n", (void *) buffer1);
     hagl_hal_debug("Back buffer 2 address is %p\n", (void *) buffer2);
-#endif
+
     return &bb;
 }
 

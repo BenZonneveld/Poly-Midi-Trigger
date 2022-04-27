@@ -97,24 +97,33 @@ void midi_task(void)
           if (length < 2) packet[2] = 0;
           if (length < 1) packet[1] = 0;
 
-          uint32_t dmesg = ((uint32_t)packet[0] << 24) | ((uint32_t)packet[1] << 16) | ((uint32_t)packet[2] << 8) | (uint32_t)packet[3];
-          xTaskNotify(display_handle, dmesg, eSetValueWithOverwrite);
-          
-          MidiHandler(packet[0]<<4, packet[2], packet[3], packet[1]&0xF);
-      
-          if (length)
+          uint8_t DataType = packet[1] & 0xf0;
+          uint8_t Channel = packet[1] & 0xf;
+          uint8_t Note = packet[2];
+          uint8_t Velo = packet[3];
+
+          if (DataType == 0xF0)
           {
-              uart_write_blocking(uart0, packet + 1, length);
+              if (packet[1] != 0xF0 && packet[1] != 0xF7 && packet[1] != 0xFE) // Ignore sysex and Active Sensing
+              {
+                  if (length)
+                  {
+                      uart_write_blocking(uart0, packet + 1, length);
+                  }
+              }
+          } else {
+              uint32_t dmesg = ((uint32_t)packet[0] << 24) | ((uint32_t)packet[1] << 16) | ((uint32_t)packet[2] << 8) | (uint32_t)packet[3];
+              xTaskNotify(display_handle, dmesg, eSetValueWithOverwrite);
+              MidiHandler(packet[0] << 4, packet[2], packet[3], packet[1] & 0xF);
           }
       }
-
       led_usb_state = true;
   }
   else
   {
       led_usb_state = false;
   }
-
+  /*
   // Handle UART to USB direction
   static uint8_t buffer[CFG_TUD_MIDI_TX_BUFSIZE/4*3];
   static uint8_t buf_pos = 0;
@@ -143,6 +152,7 @@ void midi_task(void)
 
     led_uart_state = false;
   }
+  */
 }
 
 // CORE Task

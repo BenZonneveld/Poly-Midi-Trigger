@@ -51,13 +51,14 @@ SPDX-License-Identifier: MIT-0
 
 #include <hagl_hal.h>
 #include <hagl.h>
+#include <font6x9.h>
 #include <font6x13B-ISO8859-15.h>
 #include <font9x18B-ISO8859-15.h>
 #include <fps.h>
 #include <aps.h>
 
 #include "vars.h"
-#include "LinkedList.h"
+#include "LinkedList.hpp"
 #include "disp_hagl.h"
 #include "maingate.h"   // For map/min/max functions
 #include "arp.h"
@@ -126,7 +127,6 @@ void screen_core_hagl(void *param) {
     hagl_set_clip_window(0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1);
 
     while (1) {
-        /* Update the displayed fps if requested. */
         if (xTaskNotifyWait(0, 0, &ulNotifiedValue, pdMS_TO_TICKS(100)) == pdTRUE)
         {
             for (int i = MAXLINES; i >= 1; i--)
@@ -141,8 +141,8 @@ void screen_core_hagl(void *param) {
                 lines = MAXLINES;
             }
         }
-
         show_display_hagl(lines);
+
         /* Flush back buffer contents to display. NOP if single buffering. */
         bytes = hagl_flush();
     };
@@ -203,7 +203,7 @@ void haglShowLength()
 
 void haglShowNotes()
 {
-    itoa(ListLength(), buffer, 10);
+//TODO    itoa(ListLength(), buffer, 10);
 //    SetDisplayPart(0, 64, 0, 4, BLACK);
     haglCenterText(32, 26, true, buffer);
 }

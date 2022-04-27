@@ -43,14 +43,15 @@ target_sources(${PROJECT} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/utils/led_task.c
   ${CMAKE_CURRENT_SOURCE_DIR}/screen/disp_hagl.c
   ${CMAKE_CURRENT_SOURCE_DIR}/screen/stringtable.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/screen/OptionsMenu.c
   ${CMAKE_CURRENT_SOURCE_DIR}/cdc.c
   ${CMAKE_CURRENT_SOURCE_DIR}/rtos_hooks.c
   ${CMAKE_CURRENT_SOURCE_DIR}/device_callbacks.c
   ${CMAKE_CURRENT_SOURCE_DIR}/midi.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/midi/maingate.cpp 
-  ${CMAKE_CURRENT_SOURCE_DIR}/midi/LinkedList.c 
-  ${CMAKE_CURRENT_SOURCE_DIR}/midi/handlers.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/midi/Arp.c
+#  ${CMAKE_CURRENT_SOURCE_DIR}/midi/maingate.cpp 
+#  ${CMAKE_CURRENT_SOURCE_DIR}/midi/LinkedList.cpp 
+#  ${CMAKE_CURRENT_SOURCE_DIR}/midi/handlers.c
+#  ${CMAKE_CURRENT_SOURCE_DIR}/midi/Arp.c
   ${CMAKE_CURRENT_SOURCE_DIR}/utils/MovingAvg.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/utils/MultiClick.c
   ${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/port.c
@@ -85,7 +86,7 @@ target_compile_definitions(${PROJECT} PRIVATE
   #HAGL_HAL_USE_DOUBLE_BUFFER
   HAGL_HAL_USE_TRIPLE_BUFFER
   HAGL_HAL_USE_DMA
-#  HAGL_HAL_DEBUG
+  HAGL_HAL_DEBUG=0
   MIPI_DISPLAY_SPI_CLOCK_SPEED_HZ=40000000
   MIPI_DISPLAY_PIN_CS=10
   MIPI_DISPLAY_PIN_DC=8 # A0
