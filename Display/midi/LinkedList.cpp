@@ -2,12 +2,11 @@
 #include <stdio.h>
 #include <pico/stdlib.h>
 #include <pico.h>
-#include "vars.h"
-#include "LinkedList.hpp"
 
+#include "defines.h"
 #include "midi.h"
-#include "handlers.h"
 
+//LinkedList LList;
 //static struct node* head = NULL;
 //static struct node* current = NULL;
 
@@ -32,7 +31,7 @@
 //}
 
 //insert link at the first location
-void LinkedList::ListInsert(unsigned char note, unsigned char velo) {
+void cMidi::ListInsert(unsigned char note, unsigned char velo) {
     // Check if the note is already in the list
     if (ListFindNote(note) != NULL) return;
 
@@ -63,11 +62,11 @@ void LinkedList::ListInsert(unsigned char note, unsigned char velo) {
 }
 
 //delete first item
-struct node* LinkedList::ListDeleteFirst() {
+struct node* cMidi::ListDeleteFirst() {
     //save reference to first link
     struct node* tempLink = head;
 
-    if (head->active) noteOff(tx_channel, head->Note, 0);
+    if (head->active) midi.noteOff(tx_channel, head->Note, 0);
 
     //mark next to first link as first 
     head = head->next;
@@ -77,12 +76,12 @@ struct node* LinkedList::ListDeleteFirst() {
 }
 
 //delete last item
-struct node* LinkedList::ListDeleteLast() {
+struct node* cMidi::ListDeleteLast() {
     if (head == NULL) return NULL;
 
     if (head->next == NULL)
     {
-        if (head->active) noteOff(tx_channel, head->Note, 0);
+        if (head->active) midi.noteOff(tx_channel, head->Note, 0);
         free(head);
         return NULL;
     }
@@ -94,7 +93,7 @@ struct node* LinkedList::ListDeleteLast() {
 
 
     // Delete last node
-    if (second_last->next->active) noteOff(tx_channel, head->Note, 0);
+    if (second_last->next->active) midi.noteOff(tx_channel, head->Note, 0);
     free(second_last->next);
 
     // Change next of second last
@@ -104,11 +103,11 @@ struct node* LinkedList::ListDeleteLast() {
 }
 
 //is list empty
-bool LinkedList::isListEmpty() {
+bool cMidi::isListEmpty() {
     return head == NULL;
 }
 
-int LinkedList::ListLength() {
+int cMidi::ListLength() {
     int length = 0;
     struct node* current;
 
@@ -120,7 +119,7 @@ int LinkedList::ListLength() {
 }
 
 //find a link with given key
-struct node* LinkedList::ListFindNote(unsigned char note) {
+struct node* cMidi::ListFindNote(unsigned char note) {
     //start from the first link
     struct node* current = head;
 
@@ -147,7 +146,7 @@ struct node* LinkedList::ListFindNote(unsigned char note) {
 }
 
 //delete a link with given Note
-void LinkedList::ListDeleteNote(unsigned char Note)
+void cMidi::ListDeleteNote(unsigned char Note)
 {
     struct node* temp = head;
     struct node* prev = NULL;
@@ -156,7 +155,7 @@ void LinkedList::ListDeleteNote(unsigned char Note)
     {
         if (temp->active)
         {
-            noteOff(tx_channel, temp->Note, 0);
+            midi.noteOff(tx_channel, temp->Note, 0);
         }
 
         head = temp->next;
@@ -177,7 +176,7 @@ void LinkedList::ListDeleteNote(unsigned char Note)
 
         if (temp->active)
         {
-            noteOff(tx_channel, temp->Note, 0);
+            midi.noteOff(tx_channel, temp->Note, 0);
         }
 
         prev->next = temp->next;
@@ -186,7 +185,7 @@ void LinkedList::ListDeleteNote(unsigned char Note)
 }
 
 // Do a bubble sort on the list
-void LinkedList::ListSort()
+void cMidi::ListSort()
 {
     //    struct node *start = head;
 
@@ -217,7 +216,7 @@ void LinkedList::ListSort()
 }
 
 /* function to swap data of two nodes a and b*/
-void LinkedList::ListSwap(struct node* a, struct node* b)
+void cMidi::ListSwap(struct node* a, struct node* b)
 {
     int tempNote = a->Note;
     int tempVelo = a->Velo;
@@ -231,7 +230,7 @@ void LinkedList::ListSwap(struct node* a, struct node* b)
     b->active = tempAct;
 }
 
-void LinkedList::ListSendNoteOn()
+void cMidi::ListSendNoteOn()
 {
     struct node* ptr = head;
 
@@ -239,9 +238,9 @@ void LinkedList::ListSendNoteOn()
     while (ptr != NULL) {
         if (ptr->active)
         {
-            noteOff(tx_channel, ptr->Note, 0);
+            midi.noteOff(tx_channel, ptr->Note, 0);
         }
-        noteOn(tx_channel, ptr->Note, ptr->Velo);
+        midi.noteOn(tx_channel, ptr->Note, ptr->Velo);
         ptr->active = true;
         ptr = ptr->next;
     }
@@ -249,13 +248,13 @@ void LinkedList::ListSendNoteOn()
 //    TimerStart();
 }
 
-void LinkedList::ListSendNoteOff()
+void cMidi::ListSendNoteOff()
 {
     struct node* ptr = head;
 
     //start from the beginning
     while (ptr != NULL) {
-        noteOff(tx_channel, ptr->Note, 0);
+        midi.noteOff(tx_channel, ptr->Note, 0);
         ptr->active = false;
         ptr = ptr->next;
     }
@@ -263,7 +262,7 @@ void LinkedList::ListSendNoteOff()
 //    TimerStop();
 }
 
-void LinkedList::ListNoteOn(uint8_t randNote)
+void cMidi::ListNoteOn(uint8_t randNote)
 {
     struct node* ptr = head;
     uint8_t i = 0;
@@ -274,9 +273,9 @@ void LinkedList::ListNoteOn(uint8_t randNote)
         {
             if (ptr->active)
             {
-                noteOff(tx_channel, ptr->Note, 0);
+                midi.noteOff(tx_channel, ptr->Note, 0);
             }
-            noteOn(tx_channel, ptr->Note, ptr->Velo);
+            midi.noteOn(tx_channel, ptr->Note, ptr->Velo);
             ptr->active = true;
 //TODO
 //            TimerStart();

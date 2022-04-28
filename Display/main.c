@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <wchar.h>
+//#include <wchar.h>
 #include <pico/stdlib.h>
 #include <hardware/rtc.h>
 #include "hardware/gpio.h"
@@ -19,14 +19,12 @@
 #include <tusb.h>
 #include <sys/time.h>
 
+#include "defines.h"
 #include "main.h"
-#include "vars.h"
 
-#include "hagl_hal.h"
-#include "hagl.h"
+//#include <font6x13B-ISO8859-15.h>
+//#include <font9x18B-ISO8859-15.h>
 #include "disp_hagl.h"
-
-#include "midi/struct.h"
 #include "midi.h"
 #include "cdc.h"
 //#include "midi/maingate.h"
@@ -59,17 +57,6 @@ datetime_t t = {
         .sec = 00
 };
 
-uint8_t menu_item = 0;
-uint8_t UpdateDisp = false;
-int triglength = MINTRIG;
-uint8_t oldnotecount = 0;
-uint8_t oldparam = 0;
-bool needsUpdate = false;
-bool parequal = false;
-uint8_t rand_length = 0;
-uint8_t new_rand = 255;
-bool menu_mode = false;
-
 // USB Device Driver task
 // This top level thread process all usb events and invoke callbacks
 void usb_device_task(void* param)
@@ -88,7 +75,7 @@ void usb_device_task(void* param)
     }
 }
 
-void miditsk(void* param)
+void midiTask(void* param)
 {
     while (1)
     {
@@ -101,7 +88,7 @@ int main()
 //    set_sys_clock_khz(133000, true); /// Seems to conflict with tinyusb ?!
     board_init();
     init_midi();
-    hagl_init();
+    init_display();
 //    adc_init();
 //    adc_gpio_init(NOTELENGTH);
 //    adc_gpio_init(PARAM);
@@ -114,13 +101,10 @@ int main()
     (void)xTaskCreate(cdc_task, "cdc", CDC_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &xHandle);
 
     // Create MIDI Task
-    (void)xTaskCreate(miditsk, "midi", MIDI_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &midi_handle);
+    (void)xTaskCreate(midiTask, "midi", MIDI_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &midi_handle);
 
     // Display Task
     (void)xTaskCreate(screen_core_hagl, "screen", SCREEN_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &display_handle);
-
-    // MainGate Task
- //   (void)xTaskCreate(maingate, "maingate", MAINGATE_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &maingate_handle);
 
     char datetime_buf[256];
     char* datetime_str = &datetime_buf[0];

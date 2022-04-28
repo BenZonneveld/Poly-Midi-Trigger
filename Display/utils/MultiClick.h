@@ -3,5 +3,11 @@
 
 typedef enum { BTNONE, BTCLICK, BTDBLC, BTHOLD, BTLONG } BTNEVNT;
 extern BTNEVNT event;
-
-int checkButton();
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+	int checkButton();
+#ifdef __cplusplus
+}
+#endif

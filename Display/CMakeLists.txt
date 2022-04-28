@@ -43,17 +43,18 @@ target_sources(${PROJECT} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/utils/led_task.c
   ${CMAKE_CURRENT_SOURCE_DIR}/screen/disp_hagl.c
   ${CMAKE_CURRENT_SOURCE_DIR}/screen/stringtable.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/screen/OptionsMenu.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/screen/OptionsMenu.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/cdc.c
   ${CMAKE_CURRENT_SOURCE_DIR}/rtos_hooks.c
   ${CMAKE_CURRENT_SOURCE_DIR}/device_callbacks.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/midi.c
-#  ${CMAKE_CURRENT_SOURCE_DIR}/midi/maingate.cpp 
-#  ${CMAKE_CURRENT_SOURCE_DIR}/midi/LinkedList.cpp 
-#  ${CMAKE_CURRENT_SOURCE_DIR}/midi/handlers.c
-#  ${CMAKE_CURRENT_SOURCE_DIR}/midi/Arp.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi/midi.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi/maingate.cpp 
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi/LinkedList.cpp 
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi/handlers.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/midi/Arp.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/utils/MovingAvg.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/utils/MultiClick.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/tools.c
   ${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/port.c
 )
 
