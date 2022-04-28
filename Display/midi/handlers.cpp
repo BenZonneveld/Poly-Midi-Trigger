@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <pico/stdlib.h>
 //#include "vars.h"
-#include"handlers.h"
-#include "LinkedList.h"
+
+#include "midi.h"
+//#include "handlers.hpp"
 
 #include <string.h>
 #if DEBUG
@@ -16,7 +17,7 @@
 
 bool state = false;
 
-void MidiHandler(uint8_t DataType, uint8_t Note, uint8_t Velo, uint8_t Channel)
+void cMidi::MidiHandler(uint8_t DataType, uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
     switch (DataType)
     {
@@ -58,7 +59,7 @@ void MidiHandler(uint8_t DataType, uint8_t Note, uint8_t Velo, uint8_t Channel)
     }
 }
 
-void noteOn(uint8_t channel, uint8_t pitch, uint8_t velocity) {
+void cMidi::noteOn(uint8_t channel, uint8_t pitch, uint8_t velocity) {
 /*    midiEventPacket_t noteOn = {0x09, 0x90 | channel, pitch, velocity};
     MidiUSB.sendMIDI(noteOn);
     MidiUSB.flush();
@@ -67,7 +68,7 @@ void noteOn(uint8_t channel, uint8_t pitch, uint8_t velocity) {
 */
 }
 
-void noteOff(uint8_t channel, uint8_t pitch, uint8_t velocity) {
+void cMidi::noteOff(uint8_t channel, uint8_t pitch, uint8_t velocity) {
 /*    midiEventPacket_t noteOff = {0x08, 0x80 | channel, pitch, velocity};
     MidiUSB.sendMIDI(noteOff);
     MidiUSB.flush();

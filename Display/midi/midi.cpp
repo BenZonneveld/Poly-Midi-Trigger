@@ -18,19 +18,20 @@
 #endif
 
 #include "led_task.h"
+//#include "struct.h"
+//#include "LinkedList.hpp"
+//#include "handlers.hpp"
 #include "midi.h"
-#include "struct.h"
-#include "handlers.h"
 
 //--------------------------------------------------------------------+
 // MACRO CONSTANT TYPEDEF PROTYPES
 //--------------------------------------------------------------------+
 
-static struct s_midi_data midi_data;
+//uint8_t tx_channel = 1;
+//uint8_t rx_channel = 0;
+//uint8_t trigger_channel = 2;
 
-uint8_t tx_channel = 1;
-uint8_t rx_channel = 0;
-uint8_t trigger_channel = 2;
+cMidi midi;
 
 /*------------- MAIN -------------*/
 int init_midi(void)
@@ -114,7 +115,7 @@ void midi_task(void)
           } else {
               uint32_t dmesg = ((uint32_t)packet[0] << 24) | ((uint32_t)packet[1] << 16) | ((uint32_t)packet[2] << 8) | (uint32_t)packet[3];
               xTaskNotify(display_handle, dmesg, eSetValueWithOverwrite);
-              MidiHandler(packet[0] << 4, packet[2], packet[3], packet[1] & 0xF);
+//              MidiHandler(packet[0] << 4, packet[2], packet[3], packet[1] & 0xF);
           }
       }
       led_usb_state = true;
@@ -156,11 +157,65 @@ void midi_task(void)
 }
 
 // CORE Task
-void midi_core(void)
+//void midi_core(void)
+//{
+//    while (true)
+//    {
+//        led_task();
+//        midi_task();
+//    }
+//}
+
+void cMidi::setTX(uint8_t channel)
 {
-    while (true)
+    if (channel < 16)
     {
-        led_task();
-        midi_task();
+        tx_channel = channel;
     }
+}
+
+void cMidi::setRX(uint8_t channel)
+{
+    if (channel < 16)
+    {
+        rx_channel = channel;
+    }
+}
+
+void cMidi::setTRIG(uint8_t channel)
+{
+    if (channel < 16)
+    {
+        trigger_channel = channel;
+    }
+}
+
+uint8_t getMidiTX()
+{
+    return midi.getRX();
+}
+
+uint8_t getMidiRX()
+{
+    return midi.getRX();
+}
+
+uint8_t getMidiTrig()
+{
+    return midi.getTRIG();
+}
+
+void setMidiTX(uint8_t channel)
+{
+    midi.setTX(channel);
+}
+
+void setMidiRX(uint8_t channel)
+{
+    midi.setRX(channel);
+}
+
+void setMidiTrig(uint8_t channel)
+{
+    midi.setTRIG(channel);
 }

@@ -6,6 +6,7 @@
 #ifndef MOVINGAVG_H_INCLUDED
 #define MOVINGAVG_H_INCLUDED
 
+#ifdef __cplusplus
 class movingAvg
 {
 public:
@@ -25,4 +26,5 @@ private:
     int m_next;         // index to the next reading
     int* m_readings;    // pointer to the dynamically allocated interval array
 };
+#endif
 #endif

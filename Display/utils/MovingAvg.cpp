@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <pico/stdlib.h>
 
-#include "movingAvg.hpp"
+#include "movingAvg.h"
 
 // initialize - allocate the interval array
 void movingAvg::begin()

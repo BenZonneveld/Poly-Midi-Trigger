@@ -1,17 +1,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <pico/stdlib.h>
-
+#include "midi.h"
 //#include "vars.h"
-#include "LinkedList.h"
-#include "arp.h"
+//#include "LinkedList.hpp"
+//#include "arp.h"
 
-e_mode arp_mode = ARP_OFF;
+//e_mode arp_mode = ARP_OFF;
 //uint8_t arp_mode;
-int8_t arp_note = 0;
-bool arpdir = false;
+//int8_t arp_note = 0;
+//bool arpdir = false;
 
-void Arp()
+void cMidi::Arp()
 {
     switch (arp_mode)
     {
@@ -112,4 +112,22 @@ void Arp()
         break;
     }
     ListNoteOn(arp_note);
+}
+
+void cMidi::setArpMode(e_mode mode)
+{
+    if (mode <= ARP_RANDOM)
+    {
+        arp_mode = mode;
+    }
+}
+
+e_mode getArpMode()
+{ 
+    return midi.getArpMode();
+}
+
+void setArpMode(e_mode mode)
+{
+    midi.setArpMode(mode);
 }
