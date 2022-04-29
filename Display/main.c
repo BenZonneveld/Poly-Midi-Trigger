@@ -2,11 +2,9 @@
 #include <stdio.h>
 //#include <wchar.h>
 #include <pico/stdlib.h>
-#include <hardware/rtc.h>
 #include "hardware/gpio.h"
 #include "hardware/adc.h"
 
-#include <pico/util/datetime.h>
 #include "pico/stdio/driver.h"
 
 #include "FreeRTOS.h"
@@ -22,12 +20,9 @@
 #include "defines.h"
 #include "main.h"
 
-//#include <font6x13B-ISO8859-15.h>
-//#include <font9x18B-ISO8859-15.h>
 #include "disp_hagl.h"
 #include "midi.h"
 #include "cdc.h"
-//#include "midi/maingate.h"
 
 // Increase stack size when debug log is enabled
 #if CFG_TUSB_DEBUG
@@ -47,7 +42,7 @@ TaskHandle_t midi_handle = NULL;
 TaskHandle_t display_handle = NULL;
 TaskHandle_t maingate_handle = NULL;
 
-datetime_t t = {
+/*datetime_t t = {
         .year = 2020,
         .month = 06,
         .day = 05,
@@ -55,7 +50,7 @@ datetime_t t = {
         .hour = 15,
         .min = 45,
         .sec = 00
-};
+};*/
 
 // USB Device Driver task
 // This top level thread process all usb events and invoke callbacks
@@ -86,12 +81,14 @@ void midiTask(void* param)
 int main()
 {
 //    set_sys_clock_khz(133000, true); /// Seems to conflict with tinyusb ?!
+    stdio_init_all();
     board_init();
     init_midi();
     init_display();
-//    adc_init();
-//    adc_gpio_init(NOTELENGTH);
-//    adc_gpio_init(PARAM);
+    adc_init();
+    adc_gpio_init(NOTELENGTH_ADC_IN);
+    adc_gpio_init(PARAM_ADC_IN);
+
 //TODO
 // Initialize GPIO for the Trigger input
 
@@ -105,13 +102,6 @@ int main()
 
     // Display Task
     (void)xTaskCreate(screen_core_hagl, "screen", SCREEN_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &display_handle);
-
-    char datetime_buf[256];
-    char* datetime_str = &datetime_buf[0];
-
-    // Start the RTC
-    rtc_init();
-    rtc_set_datetime(&t);
 
     vTaskStartScheduler();
 

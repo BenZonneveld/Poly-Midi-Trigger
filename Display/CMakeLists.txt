@@ -50,7 +50,6 @@ target_sources(${PROJECT} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/midi/midi.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/midi/maingate.cpp 
   ${CMAKE_CURRENT_SOURCE_DIR}/midi/LinkedList.cpp 
-  ${CMAKE_CURRENT_SOURCE_DIR}/midi/handlers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/midi/Arp.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/utils/MovingAvg.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/utils/MultiClick.c
@@ -70,7 +69,6 @@ target_link_libraries(${PROJECT} PUBLIC
         pico_bootsel_via_double_reset
         hardware_spi
         hardware_dma
-        hardware_rtc
         hardware_uart
         hardware_adc
         hagl
