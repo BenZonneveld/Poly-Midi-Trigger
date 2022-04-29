@@ -334,10 +334,6 @@ void cOptions::OptionValue(uint8_t item, uint8_t value)
 
 void cOptions::DoText(uint8_t Xpos, uint8_t Ypos, bool FontSize, char* text)
 {
-    tud_print((char*)"Do Text");
-    tud_print(text);
-    tud_print((char*)"\r\n");
-
     charToWChar(text);
     if (FontSize)
     {
